@@ -22,8 +22,8 @@ OPTIONS_SAT="SAT_HOME=~/.sat_models"
 OPTIONS_NCCL="NCCL_DEBUG=info NCCL_IB_DISABLE=0 NCCL_NET_GDR_LEVEL=2 LOCAL_WORLD_SIZE=$NUM_GPUS_PER_WORKER"
 HOST_FILE_PATH="hostfile"
 
-train_data="./archive_split/train"
-valid_data="./archive_split/valid"
+train_data="~/CogVLM/archive_split/train"
+valid_data="~/CogVLM/archive_split/valid"
 
 gpt_options=" \
        --experiment-name finetune-$MODEL_TYPE \
