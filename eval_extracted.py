@@ -15,7 +15,6 @@ def cosine_similarity(tensor1, tensor2):
     return (tensor1_norm * tensor2_norm).sum()
 
 def main():
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--max_length", type=int, default=2048, help='max length of the total sequence')
     parser.add_argument("--top_p", type=float, default=0.4, help='top p for nucleus sampling')
@@ -54,15 +53,8 @@ def main():
     from sat.mpu import get_model_parallel_world_size
     assert world_size == get_model_parallel_world_size(), "world size must equal to model parallel size for cli_demo!"
 
-    # parser = argparse.ArgumentParser()
-    # args = parser.parse_args()
-
-    # model, model_args = AutoModel.from_pretrained(
-    #     args.from_pretrained,
-    #     args=args
-    # )
-    # model = ExtractRep(args)
-    # model.eval()
+    model = ExtractRep(args)
+    model.eval()
 
     tokenizer = llama2_tokenizer(args.local_tokenizer)
     image_processor = get_image_processor(model_args.eva_args["image_size"][0])
@@ -76,7 +68,8 @@ def main():
 
         processed_image = image_processor(image_path)
 
-        current_representation = model.extract_representations(processed_image.unsqueeze(0))  # Assuming method accepts tensor
+        current_representation = model.extract_representations(processed_image.unsqueeze(0))
+
 
         if previous_representation is not None:
             similarity = cosine_similarity(current_representation, previous_representation)

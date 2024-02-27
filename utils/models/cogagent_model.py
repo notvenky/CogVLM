@@ -178,8 +178,24 @@ class CogAgentModel(LLaMAModel):
         group.add_argument('--eva_args', type=json.loads, default={})
         return super().add_model_specific_args(parser)
 
-    def forward(self, input_ids, vision_expert_mask, image_embed_mask, **kwargs):
+    # def forward(self, input_ids, vision_expert_mask, image_embed_mask, **kwargs):
         
+    #     cross_inputs = {}
+    #     for k in kwargs:
+    #         if k.startswith('cross_'):
+    #             cross_inputs[k[6:]] = kwargs[k]
+    #     if kwargs.get("mems_cross") is not None:
+    #         kwargs['encoder_outputs'] = kwargs["mems_cross"][0]
+    #     else:
+    #         outputs = self.get_mixin('encoder')(**cross_inputs)
+    #         kwargs['encoder_outputs'] = outputs
+    #     kwargs['cross_attention_mask'] = cross_inputs['attention_mask'] 
+                
+    #     if input_ids.shape[1] > 1:
+    #         return super().forward(input_ids=input_ids, vision_expert_mask=vision_expert_mask, image_embed_mask=image_embed_mask, **kwargs)
+    #     return super().forward(input_ids=input_ids, **kwargs)
+
+    def forward(self, input_ids, vision_expert_mask, image_embed_mask, return_representation=True, **kwargs):
         cross_inputs = {}
         for k in kwargs:
             if k.startswith('cross_'):
@@ -189,8 +205,12 @@ class CogAgentModel(LLaMAModel):
         else:
             outputs = self.get_mixin('encoder')(**cross_inputs)
             kwargs['encoder_outputs'] = outputs
-        kwargs['cross_attention_mask'] = cross_inputs['attention_mask'] 
-                
+
+        if return_representation:
+            return kwargs['encoder_outputs']
+
+        kwargs['cross_attention_mask'] = cross_inputs['attention_mask']
+        
         if input_ids.shape[1] > 1:
             return super().forward(input_ids=input_ids, vision_expert_mask=vision_expert_mask, image_embed_mask=image_embed_mask, **kwargs)
         return super().forward(input_ids=input_ids, **kwargs)

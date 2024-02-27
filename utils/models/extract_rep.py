@@ -1,13 +1,16 @@
+# -*- encoding: utf-8 -*-
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import argparse
 from sat.model.mixins import CachedAutoregressiveMixin
 from sat.quantization.kernels import quantize
 from sat.model import AutoModel
 
+
 from utils.utils import chat, llama2_tokenizer, llama2_text_processor_inference, get_image_processor
-from utils.models import CogAgentModel
+from utils.models import CogAgentModel, CogVLMModel
 
 # checkpoint = torch.load('mp_rank_00_model_states.pt', map_location='cuda')
 

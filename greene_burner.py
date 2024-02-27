@@ -15,5 +15,5 @@ if __name__ == "__main__":
         print("Done.")
 
     except KeyboardInterrupt:
-        print("Keyboard interrupt received. Cleaning up...")
+        print("Cleaning up...")
         exit()
