@@ -194,25 +194,20 @@ class CogAgentModel(LLaMAModel):
             kwargs['encoder_outputs'] = outputs
         kwargs['cross_attention_mask'] = cross_inputs['attention_mask'] 
 
-        print("Debug: Representation shape: ", kwargs['encoder_outputs'].shape)
-        print("Debug: Representation: ", kwargs['encoder_outputs'])
-
         if not self.tensor_saved:
             representation = kwargs['encoder_outputs']
-            
+            print("Debug: Representation shape: ", kwargs['encoder_outputs'].shape)
+            print("Debug: Representation: ", kwargs['encoder_outputs'])
             current_date = datetime.datetime.now().strftime("%Y-%m-%d")
             current_time = datetime.datetime.now().strftime("%H-%M-%S")
-            
             base_dir = "/home/venky/CogVLM/pkl_outputs"
             output_dir = os.path.join(base_dir, current_date)
-            
             os.makedirs(output_dir, exist_ok=True)
-            
             file_name = f"representation_{current_time}.pkl"
             file_path = os.path.join(output_dir, file_name)
             
             with open(file_path, 'wb') as f:
-                pickle.dump(representation.cpu().detach().numpy(), f)  # Save the tensor to disk
+                pickle.dump(representation.cpu().detach().numpy(), f)
             
             self.tensor_saved = True
                 

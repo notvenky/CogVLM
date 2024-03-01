@@ -47,6 +47,7 @@ def chat(image_path, model, text_processor, img_processor,
         query = ''
     prompt = text_processor.history_to_prompt(query, history)
 
+    # TODO: check cross_img_processor
     (torch_image, pil_img, cross_image) = process_image(image_path, img_processor, cross_img_processor, image)
 
     if torch_image is not None:
@@ -100,10 +101,7 @@ def chat(image_path, model, text_processor, img_processor,
             **inputs
         )
         if get_model_parallel_rank() == 0:
-            if 'chinese' in args and not args.chinese:
-                print("Model: ", end='')
-            else:
-                print("模型：", end='')
+            print("Model: ", end='')
         offset = len(text_processor.tokenizer.decode(input_ids))
         for tokens, mems in filling_stream:
             torch.cuda.empty_cache()
