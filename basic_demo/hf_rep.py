@@ -53,51 +53,34 @@ text_only_template = "A chat between a curious user and an artificial intelligen
 
 image_path = "/home/venky/Downloads/vlm/IMG_0864.jpg"
 
-command_list_txt = ["Describe the scene"]
-command_list_txt = ["What is the distance between tennis ball and bottle of disinfectant"]
-command_list_txt = ["Where is the tennis ball and bottle of disinfectant"]
+command_list_txt = ["Describe the scene", "What is the distance between tennis ball and bottle of disinfectant", "Where is the tennis ball and bottle of disinfectant"]
+# command_list_txt = ["What is the distance between tennis ball and bottle of disinfectant"]
+# command_list_txt = ["Where is the tennis ball and bottle of disinfectant"]
 
 
-while True:
-    image = Image.open(image_path).convert('RGB')
-    history = []
+# while True:
+image = Image.open(image_path).convert('RGB')
+history = []
 
-    while True:
-        query = input("Human:")
-        if query == "clear":
-            break
+for query in command_list_txt:
+    input_by_model = model.build_conversation_input_ids(tokenizer, query=query, history=history, images=[image])
 
-        if image is None:
-            if text_only_first_query:
-                query = text_only_template.format(query)
-                text_only_first_query = False
-            else:
-                old_prompt = ''
-                for _, (old_query, response) in enumerate(history):
-                    old_prompt += old_query + " " + response + "\n"
-                query = old_prompt + "USER: {} ASSISTANT:".format(query)
+    inputs = {
+        'input_ids': input_by_model['input_ids'].unsqueeze(0).to(DEVICE),
+        'token_type_ids': input_by_model['token_type_ids'].unsqueeze(0).to(DEVICE),
+        'attention_mask': input_by_model['attention_mask'].unsqueeze(0).to(DEVICE),
+        'images': [[input_by_model['images'][0].to(DEVICE).to(torch_type)]] if image is not None else None,
+    }
+    if 'cross_images' in input_by_model and input_by_model['cross_images']:
+        inputs['cross_images'] = [[input_by_model['cross_images'][0].to(DEVICE).to(torch_type)]]
 
-        if image is None:
-            input_by_model = model.build_conversation_input_ids(tokenizer, query=query, history=history, template_version='base')
-        else:
-            input_by_model = model.build_conversation_input_ids(tokenizer, query=query, history=history, images=[image])
-
-        inputs = {
-            'input_ids': input_by_model['input_ids'].unsqueeze(0).to(DEVICE),
-            'token_type_ids': input_by_model['token_type_ids'].unsqueeze(0).to(DEVICE),
-            'attention_mask': input_by_model['attention_mask'].unsqueeze(0).to(DEVICE),
-            'images': [[input_by_model['images'][0].to(DEVICE).to(torch_type)]] if image is not None else None,
-        }
-        if 'cross_images' in input_by_model and input_by_model['cross_images']:
-            inputs['cross_images'] = [[input_by_model['cross_images'][0].to(DEVICE).to(torch_type)]]
-
-        # add any transformers params here.
-        gen_kwargs = {"max_length": 2048,
-                      "do_sample": False} # "temperature": 0.9
-        with torch.no_grad():
-            outputs = model.generate(**inputs, **gen_kwargs)
-            outputs = outputs[:, inputs['input_ids'].shape[1]:]
-            response = tokenizer.decode(outputs[0])
-            response = response.split("</s>")[0]
-            print("\nCog:", response)
-        history.append((query, response))
+    # add any transformers params here.
+    gen_kwargs = {"max_length": 2048,
+                    "do_sample": False} # "temperature": 0.9
+    with torch.no_grad():
+        outputs = model.generate(**inputs, **gen_kwargs)
+        outputs = outputs[:, inputs['input_ids'].shape[1]:]
+        response = tokenizer.decode(outputs[0])
+        response = response.split("</s>")[0]
+        print("\nCog:", response)
+    history.append((query, response))
