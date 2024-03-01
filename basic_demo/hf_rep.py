@@ -51,15 +51,15 @@ else:
 
 text_only_template = "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions. USER: {} ASSISTANT:"
 
+image_path = "/home/venky/Downloads/vlm/IMG_0864.jpg"
+
+command_list_txt = ["Describe the scene"]
+command_list_txt = ["What is the distance between tennis ball and bottle of disinfectant"]
+command_list_txt = ["Where is the tennis ball and bottle of disinfectant"]
+
+
 while True:
-    image_path = input("image path >>>>> ")
-    if image_path == '':
-        print('You did not enter image path, the following will be a plain text conversation.')
-        image = None
-        text_only_first_query = True    
-    else:
-        image = Image.open(image_path).convert('RGB')
-    
+    image = Image.open(image_path).convert('RGB')
     history = []
 
     while True:
