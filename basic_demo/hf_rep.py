@@ -5,6 +5,7 @@ from PIL import Image
 from transformers import AutoModelForCausalLM, LlamaTokenizer
 
 parser = argparse.ArgumentParser()
+parser.add_argument("--quant", choices=[4], type=int, default=None, help='quantization bits')
 parser.add_argument("--from_pretrained", type=str, default="THUDM/cogagent-chat-hf", help='pretrained ckpt')
 parser.add_argument("--local_tokenizer", type=str, default="lmsys/vicuna-7b-v1.5", help='tokenizer path')
 parser.add_argument("--fp16", action="store_true")
@@ -27,16 +28,11 @@ model = AutoModelForCausalLM.from_pretrained(
     trust_remote_code=True
 ).to(DEVICE).eval()
 
-text_only_template = "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions. USER: {} ASSISTANT:"
-
-image_path = "/home/venky/Downloads/vlm/IMG_0864.jpg"
-
+image_path = "../../Downloads/vlm/IMG_0864.jpg"
 command_list_txt = ["Describe the scene", "What is the distance between tennis ball and bottle of disinfectant", "Where is the tennis ball and bottle of disinfectant"]
 # command_list_txt = ["What is the distance between tennis ball and bottle of disinfectant"]
 # command_list_txt = ["Where is the tennis ball and bottle of disinfectant"]
 
-
-# while True:
 image = Image.open(image_path).convert('RGB')
 history = []
 
@@ -52,13 +48,24 @@ for query in command_list_txt:
     if 'cross_images' in input_by_model and input_by_model['cross_images']:
         inputs['cross_images'] = [[input_by_model['cross_images'][0].to(DEVICE).to(torch_type)]]
 
-    # add any transformers params here.
     gen_kwargs = {"max_length": 2048,
                     "do_sample": False} # "temperature": 0.9
     with torch.no_grad():
-        outputs = model.generate(**inputs, **gen_kwargs)
-        outputs = outputs[:, inputs['input_ids'].shape[1]:]
-        response = tokenizer.decode(outputs[0])
+        intr_outputs = model.generate(**inputs, **gen_kwargs)
+        reply_outputs = intr_outputs[:, inputs['input_ids'].shape[1]:]
+        response = tokenizer.decode(reply_outputs[0])
         response = response.split("</s>")[0]
-        print("\nCog:", response)
+
+        print("\033[1;31m#$#$ " * 40 + "\033[0m")
+        print("Query:", query)
+        print("Image Shape:", inputs['images'][0][0].shape if inputs['images'] else None)
+        print("Cross Image Shape:", inputs['cross_images'][0][0].shape if inputs['cross_images'] else None)
+        print("Shapes of Inputs: input_ids", inputs['input_ids'].shape, "token_type_ids", inputs['token_type_ids'].shape, "attention_mask", inputs['attention_mask'].shape)
+        print("Shapes of Intrinsic Outputs:", intr_outputs.shape)
+        print("Intrinsic Output:", intr_outputs)
+        print("Number of Non-Zero Items:", (intr_outputs != 0).sum().item())
+        print("Shape of Reply Outputs:", reply_outputs.shape)
+        print("Reply Outputs:", reply_outputs)
+        print("Response:", response)
+
     history.append((query, response))
