@@ -13,3 +13,4 @@ runs/
 *.pt
 
 pkl_outputs/
+test_set/

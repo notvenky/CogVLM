@@ -15,6 +15,8 @@ from sat.model import AutoModel
 from utils.utils import chat, llama2_tokenizer, llama2_text_processor_inference, get_image_processor#, extract_image_representations
 from utils.models import CogAgentModel, CogVLMModel
 
+# captured_embeddings = []
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--max_length", type=int, default=2048, help='max length of the total sequence')
@@ -82,7 +84,7 @@ def main():
 
 
     if rank == 0:
-        print('Welcome to CogAgent-CLI. Enter an image URL or local file path to load an image. Continue inputting text to engage in a conversation. Type "clear" to start over, or "stop" to end the program.')
+        print('STARTING')
     with torch.no_grad():
         history = None
         cache_image = None
@@ -111,32 +113,15 @@ def main():
                     )
             print("Model: "+response)
 
-        # with Image.open(image_path).convert("RGB") as img:
-        #     processed_image = image_processor(img)
-        # for key in processed_image.keys():
-        #     if isinstance(processed_image[key], torch.Tensor):
-        #         processed_image[key] = processed_image[key].half().to(device)
-        # with autocast():
-        #     image_representations = model.get_image_representations(processed_image)
-        # print("Extracted Image Representations Shape:", image_representations.shape)
+        # # Processing captured embeddings
+        # if rank == 0:  # You might only want to process and print on the main process in a distributed setup
+        #     print("\nProcessing Captured Embeddings...")
+        #     for embedding_info in captured_embeddings:
+        #         print(f"Type: {embedding_info['type']}, Shape: {embedding_info['data'].shape}")
+        #         # Further processing based on type or data
 
-        # for query in command_list_txt:
-        #     extract_image_representations(
-        #         image_path,
-        #         model,
-        #         # text_processor_infer,
-        #         image_processor,
-        #         query,
-        #         # history=None,
-        #         # cross_img_processor,
-        #         # image
-        #         # max_length=2048,
-        #         # top_p=0.4,
-        #         # temperature=0.8,
-        #         # top_k=1,
-        #         # invalid_slices=[],
-        #         args=args
-        #     )
+        #     # Optionally clear the list before a new run or ending the program
+        #     captured_embeddings.clear()
 
 
 if __name__ == "__main__":
