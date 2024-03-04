@@ -51,6 +51,15 @@ for query in command_list_txt:
     gen_kwargs = {"max_length": 2048,
                     "do_sample": False} # "temperature": 0.9
     with torch.no_grad():
+        model_outputs = model(**inputs, output_hidden_states=True, output_attentions=True)
+        encoder_hidden_states = model_outputs.hidden_states
+        print(dir(model_outputs)) 
+        print(f"Hidden states shape: {encoder_hidden_states[-1].shape}")
+        if model_outputs.attentions is not None:
+            encoder_attentions = model_outputs.attentions
+            print(f"Attention shape: {encoder_attentions[-1].shape}")
+        else:
+            print("Attention weights are not available.")
         intr_outputs = model.generate(**inputs, **gen_kwargs)
         # print("Methods in Model:", dir(model))
         test_outputs = model.get_output_embeddings()
