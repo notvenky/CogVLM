@@ -4,6 +4,23 @@ import torch
 from PIL import Image
 from transformers import AutoModelForCausalLM, LlamaTokenizer
 
+import logging
+import h5py
+import os
+import datetime
+
+base_folder_path = "../logs"
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def compute_cosine_similarity(tensor1, tensor2):
+    tensor1_flat = tensor1.view(tensor1.size(0), -1)
+    tensor2_flat = tensor2.view(tensor2.size(0), -1)
+
+    similarity = torch.nn.functional.cosine_similarity(tensor1_flat, tensor2_flat, dim=1)
+    return similarity
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--quant", choices=[4], type=int, default=None, help='quantization bits')
 parser.add_argument("--from_pretrained", type=str, default="THUDM/cogagent-chat-hf", help='pretrained ckpt')
@@ -19,8 +36,8 @@ tokenizer = LlamaTokenizer.from_pretrained(TOKENIZER_PATH)
 torch_type = torch.float16 # on A100, use torch.bfloat16
 
 
-print("\033[1;31m#$#$ " * 30 + "\033[0m")
-print("========Use torch type as:{} with device:{}========\n\n".format(torch_type, DEVICE))
+logger.info("\033[1;31m#$#$ " * 20 + "\033[0m")
+logger.info("========Use torch type as:{} with device:{}========\n\n".format(torch_type, DEVICE))
 
 model = AutoModelForCausalLM.from_pretrained(
     MODEL_PATH,
@@ -57,7 +74,10 @@ for query in command_list_txt:
         # print(dir(model_outputs))
         print(f"Hidden states shape: {encoder_hidden_states[-1].shape}")
         intermediate_representation = model_outputs.intermediate_representations
-        print(intermediate_representation)
+        print("Intermediate Representations:")
+        print(intermediate_representation.keys())
+        print(intermediate_representation['self_attn_weights'][-1].shape)
+        print(intermediate_representation['cross_attn_weights'][-1].shape)
         
 
 
@@ -70,10 +90,9 @@ for query in command_list_txt:
         # print("Methods in Model:", dir(model))
         test_outputs = model.get_output_embeddings()
         weight_shape = test_outputs.weight.shape
-        # print('Output Embeddings:', test_outputs.weight)
-        # print("Output Embeddings Shape:", weight_shape)
+        print("Output Embeddings Shape:", weight_shape)
         reply_outputs = intr_outputs[:, inputs['input_ids'].shape[1]:]
-        response = tokenizer.decode(reply_outputs[0])
+        response = tokenizer.decode(reply_outputs[0], skip_special_tokens=True)
         response = response.split("</s>")[0]
 
         print("Query:", query)

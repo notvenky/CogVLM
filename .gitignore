@@ -14,3 +14,5 @@ runs/
 
 pkl_outputs/
 test_set/
+logs/
+temp/
