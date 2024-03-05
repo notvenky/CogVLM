@@ -11,8 +11,9 @@ hostfile
 runs/
 *.idea/
 *.pt
+*.pkl
+*.log
 
 pkl_outputs/
 test_set/
-logs/
 temp/
