@@ -13,7 +13,9 @@ runs/
 *.pt
 *.pkl
 *.log
+*.h5
 
 pkl_outputs/
 test_set/
 temp/
+h5_stuff/
