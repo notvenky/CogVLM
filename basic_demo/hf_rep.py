@@ -45,18 +45,23 @@ model = AutoModelForCausalLM.from_pretrained(
     trust_remote_code=True
 ).to(DEVICE).eval()
 
-image_path = "../test_set/d5_dist.jpg"
+image_path = "../test_set/d5.jpg"
 img_name = os.path.splitext(os.path.basename(image_path))[0]
-command_list_txt = ["What is the distance between tennis ball and cup?"]
+# command_list_txt = ["Describe the scene"]
+# command_list_txt = ["Focus on the tennis ball and cup."]
+command_list_txt = ["The distance between the tennis ball and cup is"]
 # command_list_txt = ["Where are the tennis ball and cup located?"]
 # command_list_txt = ["Describe image"]
+
+is_log = True
 
 base_folder_path = "../logs"
 current_date = datetime.datetime.now().strftime("%Y-%m-%d")
 current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-run_name = f"run_p2_{img_name}_{current_time}"
+run_name = f"N8_p3_{img_name}_{current_time}"
 run_dir_path = os.path.join(base_folder_path, current_date, run_name)
-os.makedirs(run_dir_path, exist_ok=True)
+if is_log:
+    os.makedirs(run_dir_path, exist_ok=True)
 log_file_path = os.path.join(run_dir_path, "run_log.log")
 
 image = Image.open(image_path).convert('RGB')
@@ -78,23 +83,28 @@ for query in command_list_txt:
                     "do_sample": False} # "temperature": 0.9
     with torch.no_grad():
         model_outputs = model(**inputs, output_hidden_states=True, output_attentions=True, extract_intermediate_representation=True, return_dict=True)
+        # import ipdb; ipdb.set_trace()
         encoder_hidden_states = model_outputs.hidden_states
         # print(dir(model_outputs))
         logger.info(f"\033[1;31m{query} " + "\033[0m")
-        print(f"Hidden states shape: {encoder_hidden_states[-1].shape}")
+        # import ipdb; ipdb.set_trace()
+        print(f"Hidden states shape: {encoder_hidden_states[0].shape}")
         # log hidden states to hdf5
-        with h5py.File(os.path.join(run_dir_path, 'hidden_states.h5'), 'w') as f:
-            f.create_dataset('hidden_states', data=encoder_hidden_states[-1].cpu().numpy())
+        if is_log:
+            with h5py.File(os.path.join(run_dir_path, 'hidden_states.h5'), 'w') as f:
+                f.create_dataset('hidden_states', data=encoder_hidden_states[0].cpu().numpy())
         intermediate_representation = model_outputs.intermediate_representations
         print("Intermediate Representations:")
         print(intermediate_representation.keys())
         print(intermediate_representation['self_attn_weights'][-1].shape)
         print(intermediate_representation['cross_attn_weights'][-1].shape)
+        print(intermediate_representation['hidden_states'][-1].shape)
         #log intermediate representations dict to hdf5
         logger.info(f"Log file path: {log_file_path}")
-        with h5py.File(os.path.join(run_dir_path, f'{img_name}_intermediate_representations.h5'), 'w') as f:
-            for key, value in intermediate_representation.items():
-                f.create_dataset(key, data=value[-1].cpu().numpy())
+        if is_log:
+            with h5py.File(os.path.join(run_dir_path, f'{img_name}_intermediate_representations.h5'), 'w') as f:
+                for key, value in intermediate_representation.items():
+                    f.create_dataset(key, data=value[-1].cpu().numpy())
 
         # if model_outputs.attentions is not None:
         #     encoder_attentions = model_outputs.attentions
@@ -103,20 +113,20 @@ for query in command_list_txt:
         #     print("Attention weights are not available.")
         intr_outputs = model.generate(**inputs, **gen_kwargs)
         # print("Methods in Model:", dir(model))
-        test_outputs = model.get_output_embeddings()
-        weight_shape = test_outputs.weight.shape
-        print("Output Embeddings Shape:", weight_shape)
+        # test_outputs = model.get_output_embeddings()
+        # weight_shape = test_outputs.weight.shape
+        # print("Output Embeddings Shape:", weight_shape)
         #log output embeddings to hdf5
-        with h5py.File(os.path.join(run_dir_path, 'output_embeddings.h5'), 'w') as f:
-            f.create_dataset('output_embeddings', data=test_outputs.weight.cpu().numpy())
+        # with h5py.File(os.path.join(run_dir_path, 'output_embeddings.h5'), 'w') as f:
+        #     f.create_dataset('output_embeddings', data=test_outputs.weight.cpu().numpy())
         reply_outputs = intr_outputs[:, inputs['input_ids'].shape[1]:]
         response = tokenizer.decode(reply_outputs[0], skip_special_tokens=True)
         response = response.split("</s>")[0]
-        # print("Shapes of Inputs: input_ids", inputs['input_ids'].shape, "token_type_ids", inputs['token_type_ids'].shape, "attention_mask", inputs['attention_mask'].shape)
+        print("Shapes of Inputs: input_ids", inputs['input_ids'].shape, "token_type_ids", inputs['token_type_ids'].shape, "attention_mask", inputs['attention_mask'].shape)
         print("Shapes of Intrinsic Outputs:", intr_outputs.shape)
         # print("Intrinsic Output:", intr_outputs)
         print("Number of Non-Zero Items in Intrinsic Outputs:", (intr_outputs != 0).sum().item())
-        # print("Shape of Reply Outputs:", reply_outputs.shape)
+        print("Shape of Reply Outputs:", reply_outputs.shape)
         # print("Response:", response)
 
     history.append((query, response))

@@ -33,36 +33,27 @@ def compute_cosine_sim_for_key(tensor_file_1, tensor_file_2, key):
     
     return cosine_sim.mean()
 
-def flatscore(tensor_file_1, tensor_file_2, key):
-    # Load tensors from the HDF5 files
+def compute_cosine_sim_for_hidden_states(tensor_file_1, tensor_file_2, key):
     tensor_1 = load_tensor_from_hdf5(tensor_file_1, key)
     tensor_2 = load_tensor_from_hdf5(tensor_file_2, key)
+    
+    tensor_1 = tensor_1[:, 258:, :]
+    tensor_2 = tensor_2[:, 258:, :]
+    # import ipdb; ipdb.set_trace()
 
-    # Squeeze to remove any singleton dimension (optional, depending on your data structure)
-    tensor_1 = tensor_1.squeeze()
-    tensor_2 = tensor_2.squeeze()
+    tensor_1_flat = tensor_1.reshape(tensor_1.size(0) * tensor_1.size(1), -1)
+    tensor_2_flat = tensor_2.reshape(tensor_2.size(0) * tensor_2.size(1), -1)
 
-    # Flatten the tensors
-    tensor_1_flat = tensor_1.view(-1)
-    tensor_2_flat = tensor_2.view(-1)
+    cosine_sim = torch.nn.functional.cosine_similarity(tensor_1_flat, tensor_2_flat, dim=1)
 
-    # Pad the shorter tensor to match the size of the longer one
-    if tensor_1_flat.size(0) < tensor_2_flat.size(0):
-        tensor_1_flat = torch.nn.functional.pad(tensor_1_flat, (0, tensor_2_flat.size(0) - tensor_1_flat.size(0)))
-    else:
-        tensor_2_flat = torch.nn.functional.pad(tensor_2_flat, (0, tensor_1_flat.size(0) - tensor_2_flat.size(0)))
-
-    # Compute cosine similarity
-    cosine_sim = torch.nn.functional.cosine_similarity(tensor_1_flat.unsqueeze(0), tensor_2_flat.unsqueeze(0), dim=1)
-
-    # Return the computed cosine similarity as a scalar value
-    return cosine_sim.item()
+    return cosine_sim.mean()
 
 if __name__ == '__main__':
-    keys = ['cross_attn_weights', 'self_attn_weights']
-    # keys = ['hidden_states']
+    # keys = ['cross_attn_weights', 'self_attn_weights']
+    keys = ['hidden_states']
     # keys = ['output_embeddings']
     for _ in keys:
-        similarity = compute_cosine_sim_for_key('/home/venky/CogVLM/logs/2024-03-07/run_d4_dist_2024-03-07_10-40-55/d4_dist_intermediate_representations.h5', '/home/venky/CogVLM/logs/2024-03-07/run_d1_2024-03-07_10-37-04/d1_intermediate_representations.h5', _)
+        # similarity = compute_cosine_sim_for_key('/home/venky/CogVLM/logs/2024-03-07/run_d4_dist_2024-03-07_10-40-55/d4_dist_intermediate_representations.h5', '/home/venky/CogVLM/logs/2024-03-07/run_d1_2024-03-07_10-37-04/d1_intermediate_representations.h5', _)
+        similarity = compute_cosine_sim_for_hidden_states('/home/venky/CogVLM/logs/2024-03-13/N8_p3_d5_2024-03-13_14-50-05/d5_intermediate_representations.h5', '/home/venky/CogVLM/logs/2024-03-13/N8_p3_d1_2024-03-13_14-48-56/d1_intermediate_representations.h5', _)
         print(f"Cosine similarity for {_}:", similarity)
     print("Overall Similarity Score:", similarity)
