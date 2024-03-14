@@ -37,8 +37,8 @@ def compute_cosine_sim_for_hidden_states(tensor_file_1, tensor_file_2, key):
     tensor_1 = load_tensor_from_hdf5(tensor_file_1, key)
     tensor_2 = load_tensor_from_hdf5(tensor_file_2, key)
     
-    tensor_1 = tensor_1[:, 258:, :]
-    tensor_2 = tensor_2[:, 258:, :]
+    tensor_1 = tensor_1[:, 256:258, :]
+    tensor_2 = tensor_2[:, 256:258, :]
     # import ipdb; ipdb.set_trace()
 
     tensor_1_flat = tensor_1.reshape(tensor_1.size(0) * tensor_1.size(1), -1)
@@ -60,8 +60,8 @@ if __name__ == '__main__':
     keys = ['hidden_states']
     # keys = ['output_embeddings']
     for _ in keys:
-        # similarity = compute_cosine_sim_for_key('/home/venky/CogVLM/logs/2024-03-07/run_d4_dist_2024-03-07_10-40-55/d4_dist_intermediate_representations.h5', '/home/venky/CogVLM/logs/2024-03-07/run_d1_2024-03-07_10-37-04/d1_intermediate_representations.h5', _)
-        # similarity = compute_cosine_sim_for_hidden_states('/home/venky/CogVLM/logs/2024-03-13/N8_p3_d5_2024-03-13_14-50-05/d5_intermediate_representations.h5', '/home/venky/CogVLM/logs/2024-03-13/N8_p3_d1_2024-03-13_14-48-56/d1_intermediate_representations.h5', _)
-        similarity = cosine_sim_embeddings('/home/venky/CogVLM/baselines/logs/imagenet_d3_2024-03-13_16-09-26/embeddings.h5', '/home/venky/CogVLM/baselines/logs/imagenet_d1_2024-03-13_16-08-59/embeddings.h5')
+        # similarity_wts = compute_cosine_sim_for_key('/home/venky/CogVLM/logs/2024-03-07/run_d4_dist_2024-03-07_10-40-55/d4_dist_intermediate_representations.h5', '/home/venky/CogVLM/logs/2024-03-07/run_d1_2024-03-07_10-37-04/d1_intermediate_representations.h5', _)
+        # similarity = compute_cosine_sim_for_hidden_states('/home/venky/CogVLM/logs_inputembeds/2024-03-14/N33_IMG_1117_2024-03-14_12-38-43/IMG_1117_intermediate_representations.h5', '/home/venky/CogVLM/logs_inputembeds/2024-03-14/N33_IMG_1115_2024-03-14_12-38-16/IMG_1115_intermediate_representations.h5', _)
+        similarity = cosine_sim_embeddings('/home/venky/CogVLM/baselines/logs_dino/run_IMG_1117_2024-03-14_13-18-07/embeddings.h5', '/home/venky/CogVLM/baselines/logs_dino/run_IMG_1115_2024-03-14_13-17-50/embeddings.h5')
         print(f"Cosine similarity for {_}:", similarity)
     print("Overall Similarity Score:", similarity)

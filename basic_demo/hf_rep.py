@@ -45,20 +45,20 @@ model = AutoModelForCausalLM.from_pretrained(
     trust_remote_code=True
 ).to(DEVICE).eval()
 
-image_path = "../test_set/d5.jpg"
+image_path = "../test_set5/IMG_1115.jpg"
 img_name = os.path.splitext(os.path.basename(image_path))[0]
 # command_list_txt = ["Describe the scene"]
 # command_list_txt = ["Focus on the tennis ball and cup."]
-command_list_txt = ["The distance between the tennis ball and cup is"]
+# command_list_txt = ["The distance between black pen and red table tennis racket is"]
 # command_list_txt = ["Where are the tennis ball and cup located?"]
-# command_list_txt = ["Describe image"]
+command_list_txt = ["The distance between ball and can is"]
 
 is_log = True
 
-base_folder_path = "../logs"
+base_folder_path = "../logs_inputembeds"
 current_date = datetime.datetime.now().strftime("%Y-%m-%d")
 current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-run_name = f"N8_p3_{img_name}_{current_time}"
+run_name = f"N33_{img_name}_{current_time}"
 run_dir_path = os.path.join(base_folder_path, current_date, run_name)
 if is_log:
     os.makedirs(run_dir_path, exist_ok=True)
