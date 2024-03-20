@@ -16,6 +16,10 @@ runs/
 *.h5
 
 pkl_outputs/
+
+temp/
+h5_stuff/
+
 test_set/
 test_set1.5/
 test_set2/
@@ -26,10 +30,9 @@ test_set6/
 test_set7/
 test_set8/
 
-temp/
-h5_stuff/
-
 logs/
+logs_dino/
+
 logs_scene1.5/
 logs_scene2/
 logs_scene3/
