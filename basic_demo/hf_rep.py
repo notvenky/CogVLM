@@ -53,7 +53,7 @@ img_name = os.path.splitext(os.path.basename(image_path))[0]
 # command_list_txt = ["Where are the tennis ball and cup located?"]
 command_list_txt = ["The distance between ball and can is"]
 
-is_log = True
+is_log = False
 
 base_folder_path = "../logs_inputembeds"
 current_date = datetime.datetime.now().strftime("%Y-%m-%d")

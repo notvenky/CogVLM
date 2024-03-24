@@ -20,26 +20,7 @@ pkl_outputs/
 temp/
 h5_stuff/
 
-test_set/
-test_set1.5/
-test_set2/
-test_set3/
-test_set4/
-test_set5/
-test_set6/
-test_set7/
-test_set8/
-
+test_sets
 logs/
-logs_dino/
-
-logs_scene1.5/
-logs_scene2/
-logs_scene3/
-logs_scene4/
-logs_scene5/
-logs_scene6/
-logs_scene7/
-logs_scene8/
 
 *.code-workspace
