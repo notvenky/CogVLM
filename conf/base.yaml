@@ -1,0 +1,4 @@
+image_folder: /path/to/image/folder
+models_to_sweep: [model1, model2, model3]
+base_image: base_image
+cosine_similarity_sweep: [embeddings, hidden_states, attention_weights]

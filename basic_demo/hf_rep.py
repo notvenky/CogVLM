@@ -45,7 +45,7 @@ model = AutoModelForCausalLM.from_pretrained(
     trust_remote_code=True
 ).to(DEVICE).eval()
 
-image_path = "../test_set5/IMG_1115.jpg"
+image_path = "../test_sets/test_set5/IMG_1115.jpg"
 img_name = os.path.splitext(os.path.basename(image_path))[0]
 # command_list_txt = ["Describe the scene"]
 # command_list_txt = ["Focus on the tennis ball and cup."]
