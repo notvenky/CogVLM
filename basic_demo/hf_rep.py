@@ -45,17 +45,17 @@ model = AutoModelForCausalLM.from_pretrained(
     trust_remote_code=True
 ).to(DEVICE).eval()
 
-image_path = "../test_sets/test_set5/IMG_1115.jpg"
+image_path = "../test_sets/testset_vids/IMG_1129_frames/1129_frame_60.jpg"
 img_name = os.path.splitext(os.path.basename(image_path))[0]
 # command_list_txt = ["Describe the scene"]
 # command_list_txt = ["Focus on the tennis ball and cup."]
 # command_list_txt = ["The distance between black pen and red table tennis racket is"]
 # command_list_txt = ["Where are the tennis ball and cup located?"]
-command_list_txt = ["The distance between ball and can is"]
+command_list_txt = ["The distance between robot gripper and red block is"]
 
-is_log = False
+is_log = True
 
-base_folder_path = "../logs_inputembeds"
+base_folder_path = "../logs/temp_logs"
 current_date = datetime.datetime.now().strftime("%Y-%m-%d")
 current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 run_name = f"N33_{img_name}_{current_time}"

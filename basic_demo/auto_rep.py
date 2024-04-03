@@ -22,7 +22,7 @@ def compute_cosine_similarity(tensor1, tensor2):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--quant", choices=[4], type=int, default=None, help="Quantization bits")
-    parser.add_argument("--image_folder", type=str, required=True, help="Folder containing images")
+    parser.add_argument("--image_folder", type=str, help="Folder containing images")
     parser.add_argument("--from_pretrained", type=str, default="THUDM/cogagent-chat-hf", help="Pretrained model checkpoint")
     parser.add_argument("--local_tokenizer", type=str, default="lmsys/vicuna-7b-v1.5", help="Tokenizer path")
     parser.add_argument("--fp16", action="store_true", help="Use FP16 precision")
@@ -30,7 +30,10 @@ def main():
 
     command_list_txt = [
         # "Describe the scene",
-        "The distance between ball and can is"
+        # "The position of red block with respect to blue block is",
+        # "The position of red block with respect to the white box is"
+        # "The distance between robot gripper and red block is",
+        "The distance between red block and white box is",
     ]
 
     for img_name in sorted(os.listdir(args.image_folder)):
@@ -50,7 +53,6 @@ def main():
         tokenizer = LlamaTokenizer.from_pretrained(TOKENIZER_PATH)
         torch_type = torch.float16 # on A100, use torch.bfloat16
 
-
         logger.info("\033[1;31mSTARTING " + "\033[0m")
         logger.info("========Use torch type as:{} with device:{}========\n\n".format(torch_type, DEVICE))
 
@@ -62,9 +64,9 @@ def main():
             trust_remote_code=True
         ).to(DEVICE).eval()
 
-        is_log = False
+        is_log = True
 
-        base_folder_path = "../logs_inputembeds"
+        base_folder_path = "../logs/logs_vid_1131"
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
         current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         run_name = f"N33_{img_name}_{current_time}"
