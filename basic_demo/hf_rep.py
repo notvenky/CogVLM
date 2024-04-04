@@ -28,7 +28,7 @@ parser.add_argument("--fp16", action="store_true")
 args = parser.parse_args()
 MODEL_PATH = args.from_pretrained
 TOKENIZER_PATH = args.local_tokenizer
-DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+DEVICE = 'cuda:1' if torch.cuda.is_available() else 'cpu'
 
 tokenizer = LlamaTokenizer.from_pretrained(TOKENIZER_PATH)
 torch_type = torch.float16 # on A100, use torch.bfloat16

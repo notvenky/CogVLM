@@ -24,3 +24,10 @@ test_sets
 logs/
 
 *.code-workspace
+
+# Image files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg

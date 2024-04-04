@@ -56,6 +56,7 @@ def compute_cosine_sim_for_hidden_states(tensor_file_1, tensor_file_2, key):
 def compute_cosine_sim_for_sam(tensor_file_1, tensor_file_2, key):
     tensor_1 = load_tensor_from_hdf5(tensor_file_1, key)
     tensor_2 = load_tensor_from_hdf5(tensor_file_2, key)
+    import ipdb; ipdb.set_trace()
     
     # import ipdb; ipdb.set_trace()
     tensor_1 = tensor_1[:, :256, :, :]
@@ -88,7 +89,7 @@ def sweep_log_summary(sweep_folder, base_rep, keys):
     if is_video:
         sweep_files.sort(key=lambda x: int(re.search(r'frame_(\d+)', x).group(1)))
     else:
-        sweep_files.sort(key=lambda x: int(re.search(r'IMG_(\d+)(?=\.(jpg|png|jpeg|heic))', x, re.IGNORECASE).group(1)))
+        sweep_files.sort()
 
 
     # Store the similarity scores
@@ -125,8 +126,11 @@ def sweep_log_summary(sweep_folder, base_rep, keys):
         ax.bar(x, y, width=0.2, label=key)
     
     ax.set_xticks(np.arange(len(sweep_files)) + 0.2 * (len(keys) - 1) / 2)
-    # ax.set_xticklabels(sweep_files, rotation=45, ha='right')
-    ax.set_xticklabels([re.search(r'frame_(\d+)', file).group(1) for file in sweep_files], rotation=45, ha='right')
+    # ax.set_xticklabels(re.search(r'IMG_(\d+)', file).group(1) for file in sweep_files)
+    if is_video:
+        ax.set_xticklabels([re.search(r'frame_(\d+)', file).group(1) for file in sweep_files], rotation=45, ha='right')
+    else:
+        ax.set_xticklabels([re.search(r'IMG_(\d+)', file).group(1) for file in sweep_files], rotation=45, ha='right')
     # scale y limits view to see better between min and max 
     # ax.set_ylim(0.4, 1.0)
     ax.set_title("Cosine Similarity Scores")
@@ -137,26 +141,26 @@ def sweep_log_summary(sweep_folder, base_rep, keys):
     plt.savefig(os.path.join(sweep_folder, 'similarity_scores.png'))
     plt.show()
 
-# if __name__ == '__main__':
-#     # keys = ['cross_attn_weights', 'self_attn_weights']
-#     # keys = ['hidden_states']
-#     keys = ['image_representation']
-#     # keys = ['output_embeddings']
-
-#     sweep_folder = ''
-#     base_rep = ''
-
-#     for _ in keys:
-#         # similarity_wts = compute_cosine_sim_for_key('/home/venky/CogVLM/logs/2024-03-07/run_d4_dist_2024-03-07_10-40-55/d4_dist_intermediate_representations.h5', '/home/venky/CogVLM/logs/2024-03-07/run_d1_2024-03-07_10-37-04/d1_intermediate_representations.h5', _)
-#         similarity = compute_cosine_sim_for_sam('/home/venky/lang-segment-anything/image_representation_20240403142253.h5', '/home/venky/lang-segment-anything/image_representation_20240403140903.h5', _)
-#         # similarity = cosine_sim_embeddings('/home/venky/CogVLM/logs/logs_vid_1129/2024-04-01/N33_1129_frame_60.jpg_2024-04-01_16-05-48/hidden_states.h5', '/home/venky/CogVLM/logs/logs_vid_1129/2024-04-01/N33_1129_frame_30.jpg_2024-04-01_16-03-11/hidden_states.h5')
-#         print(f"Cosine similarity for {_}:", similarity)
-#     print("Overall Similarity Score:", similarity)
-
 if __name__ == '__main__':
-    keys = ['hidden_states']
-    sweep_folder = '/home/venky/CogVLM/logs/logs_vid_1129/2024-04-01'
-    base_rep = '/home/venky/CogVLM/logs/logs_vid_1129/2024-04-01/N33_1129_frame_30.jpg_2024-04-01_16-03-11/hidden_states.h5'
+    # keys = ['cross_attn_weights', 'self_attn_weights']
+    # keys = ['hidden_states']
+    keys = ['image_representation']
+    # keys = ['output_embeddings']
 
-    sweep_log_summary(sweep_folder, base_rep, keys)
+    sweep_folder = ''
+    base_rep = ''
+
+    for _ in keys:
+        # similarity_wts = compute_cosine_sim_for_key('/home/venky/CogVLM/logs/2024-03-07/run_d4_dist_2024-03-07_10-40-55/d4_dist_intermediate_representations.h5', '/home/venky/CogVLM/logs/2024-03-07/run_d1_2024-03-07_10-37-04/d1_intermediate_representations.h5', _)
+        similarity = compute_cosine_sim_for_sam('/home/venky/lang-segment-anything/sam_logs/20240403_163355/1115/1115_representation.h5', '/home/venky/lang-segment-anything/sam_logs/20240403_182057/1115/1115_representation.h5', _)
+        # similarity = cosine_sim_embeddings('/home/venky/CogVLM/logs/logs_vid_1129/2024-04-01/N33_1129_frame_60.jpg_2024-04-01_16-05-48/hidden_states.h5', '/home/venky/CogVLM/logs/logs_vid_1129/2024-04-01/N33_1129_frame_30.jpg_2024-04-01_16-03-11/hidden_states.h5')
+        print(f"Cosine similarity for {_}:", similarity)
+    print("Overall Similarity Score:", similarity)
+
+# if __name__ == '__main__':
+#     keys = ['hidden_states']
+#     sweep_folder = '/home/venky/CogVLM/logs/logs_vid_1131/2024-04-01'
+#     base_rep = '/home/venky/CogVLM/logs/logs_vid_1131/2024-04-01/N33_1131_frame_30.jpg_2024-04-01_16-19-30/hidden_states.h5'
+
+#     sweep_log_summary(sweep_folder, base_rep, keys)
 
